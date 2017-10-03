@@ -12,10 +12,13 @@ class NewsDisplayPageViewController: UIPageViewController {
 
     var currentIndex: Int?
     var newsToDisplay: [NewsViewModel]?
+    private var newsContainertViewController = NewsContainerViewController()
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        newsContainertViewController = self.storyboard?.instantiateViewController(withIdentifier: "NewsContainerVC") as! NewsContainerViewController
         
         self.navigationController?.navigationBar.isHidden = false
         self.dataSource = self
@@ -31,8 +34,6 @@ class NewsDisplayPageViewController: UIPageViewController {
     }
     
     func getViewControllerAtIndex(index: NSInteger) -> NewsContainerViewController {
-        
-        let newsContainertViewController = self.storyboard?.instantiateViewController(withIdentifier: "NewsContainerVC") as! NewsContainerViewController
         
         newsContainertViewController.pageURL = newsToDisplay?[index].newsURL
         newsContainertViewController.pageIndex = index
