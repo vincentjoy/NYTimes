@@ -69,9 +69,11 @@ class NewsListViewController: UIViewController, HandleWebserviceProtocol {
         }
         
         webService.getData(webServiceURL: webServiceURL, baseParameters:baseParameters) { (NewsResult) in
+            
             switch NewsResult {
             case let .success(news):
-                guard news.count>0 else {
+                
+                guard let news = news as? [NewsViewModel], news.count>0 else {
                     self.handleError(title: "Sorry", message: "No results found")
                     return
                 }

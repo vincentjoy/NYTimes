@@ -9,7 +9,7 @@
 import UIKit
 
 enum NewsResult {
-    case success([NewsViewModel])
+    case success([Any])
     case failure(Error)
 }
 
@@ -26,46 +26,6 @@ enum WebServiceURL: String {
 }
 
 struct WebService {
-    
-    private func news(fromJSON data: Data, for webService:WebServiceURL) -> NewsResult {
-        do {
-            
-            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-            
-            var finalNews = [NewsViewModel]()
-            
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any] else {
-                    return .failure(NewsError.invalidJSONData)
-            }
-            
-            switch webService {
-            case .topStories:
-                if let newsArray = jsonDictionary["results"] as? [[String:Any]] {
-                    for newsDict in newsArray {
-                        finalNews.append(NewsViewModel(NewsModel(newsDict)))
-                    }
-                    if finalNews.isEmpty && !newsArray.isEmpty {
-                        return .failure(NewsError.invalidJSONData)
-                    }
-                }
-            default:
-                if let response = jsonDictionary["response"] as? [String:Any], let newsArray = response["docs"] as? [[String:Any]] {
-                    for newsDict in newsArray {
-                        finalNews.append(NewsViewModel(SearchedNewsModel(newsDict)))
-                    }
-                    if finalNews.isEmpty && !newsArray.isEmpty {
-                        return .failure(NewsError.invalidJSONData)
-                    }
-                }
-            }
-            
-            return .success(finalNews)
-            
-        } catch let error {
-            
-            return .failure(error)
-        }
-    }
     
     func getData(webServiceURL: WebServiceURL, baseParameters:[String:String], completionClosure: @escaping (NewsResult) -> ()) {
         
@@ -93,7 +53,7 @@ struct WebService {
             
             guard let jsonData = data else { return completionClosure(.failure(error!)) }
             
-            let result = self.news(fromJSON: jsonData, for: webServiceURL)
+            let result = NetworkEngine.sharedEngine.parseData(fromWebCall: jsonData, for: webServiceURL)
             
             DispatchQueue.main.async {
                 completionClosure(result)
